@@ -40,15 +40,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      color: Colors.white,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back_rounded, size: 22, color: Color(0xFF0B2B40)),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Text(
                     'Reset Password',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           color: const Color(0xFF0B2B40),
                         ),
                   ),
@@ -109,9 +116,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFF5F7F9),
                                     borderRadius: BorderRadius.circular(16),
-                                    border: const Border.fromBorderSide(
-                                      BorderSide(color: Color(0xFFCBD5E1)),
-                                    ),
+                                    border: Border.all(color: const Color(0xFFCBD5E1)),
                                   ),
                                   child: const Row(
                                     children: [
@@ -150,15 +155,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                                      borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                                      borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(16),
-                                        borderSide: const BorderSide(color: Color(0xFF0EA5E9), width: 1.6),
+                                      borderSide: const BorderSide(color: Color(0xFF037A73), width: 1.6),
                                       ),
                                     ),
                                     validator: (value) {
@@ -175,17 +180,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ElevatedButton(
                               onPressed: _handleSendOtp,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00B9C6),
+                                backgroundColor: const Color(0xFF008F85),
                                 padding: const EdgeInsets.symmetric(vertical: 18),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                                 textStyle: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
+                                  color: Colors.white,
                                 ),
                               ),
-                              child: const Text('Send OTP'),
+                              child: const Text(
+                                'Send OTP',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 24),
                             Center(
