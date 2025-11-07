@@ -308,9 +308,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           const SizedBox(height: 16),
           TextButton(
-            onPressed: () {
-              // TODO: implement forgot password flow
-            },
+            onPressed: () => context.push('/forgot-password'),
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
               foregroundColor: const Color(0xFF008F85),
