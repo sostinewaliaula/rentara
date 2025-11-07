@@ -11,6 +11,8 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _navigationTriggered = false;
+
   @override
   void initState() {
     super.initState();
@@ -19,16 +21,31 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   Future<void> _checkAuth() async {
     await Future.delayed(const Duration(seconds: 2));
-    await ref.read(authProvider.notifier).checkAuth();
-    
-    if (mounted) {
-      final isAuthenticated = ref.read(authProvider).isAuthenticated;
+
+    if (!mounted || _navigationTriggered) return;
+
+    debugPrint('🔐 Splash: checking auth...');
+    final authNotifier = ref.read(authProvider.notifier);
+    await authNotifier.checkAuth();
+
+    if (!mounted || _navigationTriggered) return;
+
+    final authState = ref.read(authProvider);
+    final isAuthenticated = authState.isAuthenticated;
+    debugPrint('🔐 Splash: auth complete. isAuthenticated=$isAuthenticated');
+
+    _navigationTriggered = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       if (isAuthenticated) {
-        context.go('/dashboard');
+        debugPrint('🔐 Splash: navigating to /dashboard');
+        GoRouter.of(context).go('/dashboard');
       } else {
-        context.go('/login');
+        debugPrint('🔐 Splash: navigating to /login');
+        GoRouter.of(context).go('/login');
       }
-    }
+    });
   }
 
   @override
