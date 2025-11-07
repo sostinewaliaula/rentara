@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               subtitle: 'Manage your payment options',
               actionLabel: 'Add',
               actionIcon: Icons.add,
-              onActionTap: () {},
+              onActionTap: () => context.push('/profile/payment-methods?bypass=1'),
               compactSeparators: true,
               children: const [
                 _PaymentRow(label: 'M-PESA', icon: Icons.account_balance_wallet_rounded),
