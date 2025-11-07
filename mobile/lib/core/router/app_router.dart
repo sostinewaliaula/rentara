@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rentara/core/providers/auth_provider.dart';
 import 'package:rentara/features/auth/presentation/screens/login_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:rentara/features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/register_screen.dart';
 import 'package:rentara/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:rentara/features/payments/presentation/screens/payments_screen.dart';
@@ -25,9 +26,9 @@ GoRouter router(RouterRef ref) {
     initialLocation: '/login',
     redirect: (context, state) {
       final isAuthenticated = authState.isAuthenticated;
-      final isAuthEntryRoute = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register' ||
-          state.matchedLocation == '/forgot-password';
+      final isAuthEntryRoute = state.matchedLocation.startsWith('/login') ||
+          state.matchedLocation.startsWith('/register') ||
+          state.matchedLocation.startsWith('/forgot-password');
 
       if (!isAuthenticated && !isAuthEntryRoute) {
         return '/login';
@@ -47,6 +48,12 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password/verify',
+        builder: (context, state) => OtpVerificationScreen(
+          phoneNumber: state.extra as String?,
+        ),
       ),
       GoRoute(
         path: '/register',

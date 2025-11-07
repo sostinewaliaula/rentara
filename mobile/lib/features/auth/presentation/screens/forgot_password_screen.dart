@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -20,11 +21,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _handleSendOtp() {
     if (_formKey.currentState!.validate()) {
+      final rawPhone = _phoneController.text.trim().replaceAll(' ', '');
+      final formattedPhone = '+254$rawPhone';
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('OTP request sent (placeholder)'),
+        SnackBar(
+          content: Text('OTP sent to $formattedPhone'),
         ),
       );
+
+      context.go('/forgot-password/verify', extra: formattedPhone);
     }
   }
 
