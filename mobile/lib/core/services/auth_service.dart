@@ -77,6 +77,21 @@ class AuthService {
   Future<void> logout() async {
     await _apiService.clearToken();
   }
+
+  Future<void> requestLoginOtp(String phone, String password) async {
+    try {
+      final response = await _apiService.post('/auth/login/otp', data: {
+        'phone': phone,
+        'password': password,
+      });
+
+      if (response.statusCode != 200) {
+        throw Exception(response.data['error'] ?? 'Unable to send login OTP');
+      }
+    } catch (e) {
+      throw Exception('Unable to send login OTP: ${e.toString()}');
+    }
+  }
 }
 
 class AuthResult {

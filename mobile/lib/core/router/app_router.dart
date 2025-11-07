@@ -5,6 +5,7 @@ import 'package:rentara/features/auth/presentation/screens/login_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/reset_password_screen.dart';
+import 'package:rentara/features/auth/presentation/screens/login_otp_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/register_screen.dart';
 import 'package:rentara/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:rentara/features/payments/presentation/screens/payments_screen.dart';
@@ -27,11 +28,14 @@ GoRouter router(RouterRef ref) {
     initialLocation: '/login',
     redirect: (context, state) {
       final isAuthenticated = authState.isAuthenticated;
+      final extra = state.extra;
+      final hasBypass =
+          extra is Map && extra['bypassAuth'] == true;
       final isAuthEntryRoute = state.matchedLocation.startsWith('/login') ||
           state.matchedLocation.startsWith('/register') ||
           state.matchedLocation.startsWith('/forgot-password');
 
-      if (!isAuthenticated && !isAuthEntryRoute) {
+      if (!isAuthenticated && !isAuthEntryRoute && !hasBypass) {
         return '/login';
       }
 
@@ -45,6 +49,21 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/login/verify',
+        builder: (context, state) {
+          final params = state.extra as Map<String, String>?;
+          final phone = params?['phone'];
+          final password = params?['password'];
+          if (phone == null || password == null) {
+            return const LoginScreen();
+          }
+          return LoginOtpScreen(
+            phoneNumber: phone,
+            password: password,
+          );
+        },
       ),
       GoRoute(
         path: '/forgot-password',

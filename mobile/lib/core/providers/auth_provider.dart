@@ -52,6 +52,17 @@ class Auth extends _$Auth {
     }
   }
 
+  Future<void> requestLoginOtp(String phone, String password) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _authService.requestLoginOtp(phone, password);
+      state = state.copyWith(isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      rethrow;
+    }
+  }
+
   Future<void> register({
     required String name,
     required String phone,

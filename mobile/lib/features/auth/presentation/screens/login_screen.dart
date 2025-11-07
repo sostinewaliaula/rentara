@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rentara/core/providers/auth_provider.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isRequestingOtp = false;
 
   @override
   void dispose() {
@@ -25,32 +24,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        final phone = '+254${_phoneController.text.trim().replaceAll(' ', '')}';
-        await ref.read(authProvider.notifier).login(
-              phone,
-              _passwordController.text,
-            );
-        if (mounted) {
-          context.go('/dashboard');
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.toString().replaceFirst('Exception: ', '')),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
+      setState(() => _isRequestingOtp = true);
+      final phone = '+254${_phoneController.text.trim().replaceAll(' ', '')}';
+      if (!mounted) return;
+      setState(() => _isRequestingOtp = false);
+      context.push('/login/verify', extra: {
+        'phone': phone,
+        'password': _passwordController.text,
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
       body: SafeArea(
@@ -143,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            _buildLoginForm(context, authState),
+                            _buildLoginForm(context),
                           ],
                         ),
                       ),
@@ -158,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildLoginForm(BuildContext context, AuthState authState) {
+  Widget _buildLoginForm(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
@@ -278,7 +264,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: authState.isLoading ? null : _handleLogin,
+            onPressed: _isRequestingOtp ? null : _handleLogin,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF008F85),
               padding: const EdgeInsets.symmetric(vertical: 18),
@@ -292,7 +278,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 letterSpacing: 0.2,
               ),
             ),
-            child: authState.isLoading
+            child: _isRequestingOtp
                 ? const SizedBox(
                     height: 20,
                     width: 20,
