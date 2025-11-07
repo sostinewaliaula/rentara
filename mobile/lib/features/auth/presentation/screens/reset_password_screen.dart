@@ -127,21 +127,28 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back_rounded, size: 22, color: Color(0xFF0B2B40)),
-                      onPressed: () {
-                        if (Navigator.of(context).canPop()) {
-                          Navigator.of(context).pop();
-                        } else {
-                          context.go('/forgot-password/verify', extra: widget.phoneNumber);
-                        }
-                      },
+                      onPressed: () => context.go('/forgot-password/verify', extra: widget.phoneNumber),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'Set New Password',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF0B2B40),
+                  Expanded(
+                    child: Text(
+                      'Set New Password',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0B2B40),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      color: Colors.white,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 22, color: Color(0xFF0B2B40)),
+                      onPressed: () => context.go('/login'),
                     ),
                   ),
                 ],

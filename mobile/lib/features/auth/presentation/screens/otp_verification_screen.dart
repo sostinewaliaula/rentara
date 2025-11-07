@@ -195,22 +195,29 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back_rounded, size: 22, color: Color(0xFF0B2B40)),
-                    onPressed: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      } else {
-                        context.go('/forgot-password');
-                      }
-                    },
+                    onPressed: () => context.go('/forgot-password'),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'OTP Confirmation',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0B2B40),
-                        ),
+                  Expanded(
+                    child: Text(
+                      'OTP Confirmation',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF0B2B40),
+                          ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      color: Colors.white,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 22, color: Color(0xFF0B2B40)),
+                      onPressed: () => context.go('/login'),
+                    ),
                   ),
                 ],
               ),
