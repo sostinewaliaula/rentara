@@ -118,9 +118,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0B2B40)),
+        Badge(
+          isLabelVisible: true,
+          alignment: Alignment.topRight,
+          backgroundColor: const Color(0xFFEF4444),
+          smallSize: 10,
+          child: IconButton(
+            onPressed: () => context.push('/notifications?bypass=1'),
+            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0B2B40)),
+          ),
         ),
       ],
     );
