@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class AddPaymentMethodScreen extends StatelessWidget {
+class AddPaymentMethodScreen extends StatefulWidget {
   const AddPaymentMethodScreen({super.key});
+
+  @override
+  State<AddPaymentMethodScreen> createState() => _AddPaymentMethodScreenState();
+}
+
+class _AddPaymentMethodScreenState extends State<AddPaymentMethodScreen> {
+  final _providerController = TextEditingController();
+  final _detailsController = TextEditingController();
+
+  @override
+  void dispose() {
+    _providerController.dispose();
+    _detailsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +70,101 @@ class AddPaymentMethodScreen extends StatelessWidget {
             const SizedBox(height: 12),
             ...paymentMethods.map((method) => _PaymentMethodCard(method: method)).toList(),
             const SizedBox(height: 20),
-            _AddNewMethodButton(onTap: () {}),
+            _AddNewMethodButton(onTap: () => _showAddSheet(context)),
           ],
         ),
       ),
+    );
+  }
+
+  void _showAddSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Add Payment Method',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0B2B40),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Provider Name',
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _BottomSheetField(controller: _providerController, hint: 'e.g. M-Pesa'),
+              const SizedBox(height: 16),
+              const Text(
+                'Account Details',
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _BottomSheetField(
+                controller: _detailsController,
+                hint: 'e.g. +254 712 345 678',
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Payment method added (placeholder).'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF008F85),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  child: const Text('Save Payment Method'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -127,9 +233,34 @@ class _PaymentMethodCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () {},
+              PopupMenuButton<_PaymentAction>(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 icon: const Icon(Icons.more_vert_rounded, color: Color(0xFF94A3B8)),
+                color: Colors.white,
+                onSelected: (action) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        action == _PaymentAction.edit
+                            ? 'Edit flow coming soon.'
+                            : 'Payment method removed (placeholder).',
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: _PaymentAction.edit,
+                    padding: EdgeInsets.zero,
+                    child: Icon(Icons.edit_rounded, color: const Color(0xFF008F85)),
+                  ),
+                  PopupMenuItem(
+                    value: _PaymentAction.delete,
+                    padding: EdgeInsets.zero,
+                    child: Icon(Icons.delete_rounded, color: const Color(0xFFEF4444)),
+                  ),
+                ],
               ),
             ],
           ),
@@ -205,3 +336,45 @@ class _AddNewMethodButton extends StatelessWidget {
     );
   }
 }
+
+class _BottomSheetField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+
+  const _BottomSheetField({required this.controller, required this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          color: Color(0xFF94A3B8),
+          fontWeight: FontWeight.w500,
+        ),
+        filled: true,
+        fillColor: const Color(0xFFF5F7F9),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF037A73), width: 1.6),
+        ),
+      ),
+      style: const TextStyle(
+        color: Color(0xFF0B2B40),
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+enum _PaymentAction { edit, delete }
