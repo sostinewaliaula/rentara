@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rentara/core/widgets/main_bottom_nav.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -35,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0B2B40)),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/dashboard?bypass=1'),
         ),
         centerTitle: true,
         title: Text(
@@ -180,6 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const MainBottomNav(currentIndex: 3),
     );
   }
 

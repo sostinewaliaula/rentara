@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rentara/core/widgets/main_bottom_nav.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -62,19 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-        selectedItemColor: const Color(0xFF008F85),
-        unselectedItemColor: const Color(0xFF94A3B8),
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.payments_rounded), label: 'Payments'),
-          BottomNavigationBarItem(icon: Icon(Icons.message_outlined), label: 'Messages'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
-        ],
-      ),
+      bottomNavigationBar: const MainBottomNav(currentIndex: 0),
     );
   }
 
@@ -83,7 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(30),
-          onTap: () => context.push('/profile', extra: {'bypassAuth': true}),
+          onTap: () => context.push('/profile?bypass=1'),
           child: CircleAvatar(
             radius: 26,
             backgroundColor: const Color(0xFFE4F6F5),
@@ -118,15 +107,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-        Badge(
-          isLabelVisible: true,
-          alignment: Alignment.topRight,
-          backgroundColor: const Color(0xFFEF4444),
-          smallSize: 10,
-          child: IconButton(
-            onPressed: () => context.push('/notifications?bypass=1'),
-            icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF0B2B40)),
-          ),
+        IconButton(
+          onPressed: () => context.push('/settings?bypass=1'),
+          icon: const Icon(Icons.settings_outlined, color: Color(0xFF0B2B40)),
         ),
       ],
     );
@@ -333,7 +316,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 textStyle: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              onPressed: () => context.push('/payments'),
+              onPressed: () => context.push('/payments?bypass=1'),
               child: const Text('View All History'),
             ),
           ),

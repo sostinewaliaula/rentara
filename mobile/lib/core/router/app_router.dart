@@ -17,6 +17,7 @@ import 'package:rentara/features/profile/presentation/screens/profile_screen.dar
 import 'package:rentara/features/profile/presentation/screens/add_payment_method_screen.dart';
 import 'package:rentara/features/units/presentation/screens/units_screen.dart';
 import 'package:rentara/features/units/presentation/screens/unit_detail_screen.dart';
+import 'package:rentara/features/settings/presentation/screens/settings_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -132,6 +133,10 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/profile/payment-methods',
         builder: (context, state) => const AddPaymentMethodScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
