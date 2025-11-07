@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final _phoneController = TextEditingController(text: '+254 712 345 678');
+  final _idController = TextEditingController(text: '12345678');
+  final _emergencyNameController = TextEditingController(text: 'John Otieno');
+  final _relationshipController = TextEditingController(text: 'Spouse');
+  final _emergencyPhoneController = TextEditingController(text: '+254 798 765 432');
+  bool _isEditingPersonal = false;
+  bool _isEditingEmergency = false;
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _idController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,23 +72,74 @@ class ProfileScreen extends StatelessWidget {
             _ProfileSection(
               title: 'Personal Details',
               subtitle: 'Your personal information',
-              actionLabel: 'Edit',
-              onActionTap: () {},
-              children: const [
-                _InfoRow(label: 'Phone Number', value: '+254 712 345 678'),
-                _InfoRow(label: 'National ID', value: '12345678'),
+              actionLabel: _isEditingPersonal ? 'Save' : 'Edit',
+              actionIcon: _isEditingPersonal ? Icons.check_rounded : Icons.edit,
+              onActionTap: () {
+                if (_isEditingPersonal) {
+                  // In a real app, persist changes here
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Details updated (placeholder).'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+                setState(() => _isEditingPersonal = !_isEditingPersonal);
+              },
+              children: [
+                _isEditingPersonal
+                    ? _EditableField(
+                        label: 'Phone Number',
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                      )
+                    : _InfoRow(label: 'Phone Number', value: _phoneController.text),
+                _isEditingPersonal
+                    ? _EditableField(
+                        label: 'National ID',
+                        controller: _idController,
+                        keyboardType: TextInputType.number,
+                      )
+                    : _InfoRow(label: 'National ID', value: _idController.text),
               ],
             ),
             const SizedBox(height: 16),
             _ProfileSection(
               title: 'Emergency Contact',
               subtitle: 'In case of an emergency',
-              actionLabel: 'Edit',
-              onActionTap: () {},
-              children: const [
-                _InfoRow(label: 'Name', value: 'John Otieno'),
-                _InfoRow(label: 'Relationship', value: 'Spouse'),
-                _InfoRow(label: 'Phone Number', value: '+254 798 765 432'),
+              actionLabel: _isEditingEmergency ? 'Save' : 'Edit',
+              actionIcon: _isEditingEmergency ? Icons.check_rounded : Icons.edit,
+              onActionTap: () {
+                if (_isEditingEmergency) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Emergency contact updated (placeholder).'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+                setState(() => _isEditingEmergency = !_isEditingEmergency);
+              },
+              children: [
+                _isEditingEmergency
+                    ? _EditableField(
+                        label: 'Name',
+                        controller: _emergencyNameController,
+                      )
+                    : _InfoRow(label: 'Name', value: _emergencyNameController.text),
+                _isEditingEmergency
+                    ? _EditableField(
+                        label: 'Relationship',
+                        controller: _relationshipController,
+                      )
+                    : _InfoRow(label: 'Relationship', value: _relationshipController.text),
+                _isEditingEmergency
+                    ? _EditableField(
+                        label: 'Phone Number',
+                        controller: _emergencyPhoneController,
+                        keyboardType: TextInputType.phone,
+                      )
+                    : _InfoRow(label: 'Phone Number', value: _emergencyPhoneController.text),
               ],
             ),
             const SizedBox(height: 16),
@@ -78,6 +149,7 @@ class ProfileScreen extends StatelessWidget {
               actionLabel: 'Add',
               actionIcon: Icons.add,
               onActionTap: () {},
+              compactSeparators: true,
               children: const [
                 _PaymentRow(label: 'M-PESA', icon: Icons.account_balance_wallet_rounded),
                 _DividerSpacer(),
@@ -161,6 +233,7 @@ class _ProfileSection extends StatelessWidget {
   final IconData? actionIcon;
   final VoidCallback onActionTap;
   final List<Widget> children;
+  final bool compactSeparators;
 
   const _ProfileSection({
     required this.title,
@@ -169,6 +242,7 @@ class _ProfileSection extends StatelessWidget {
     required this.onActionTap,
     required this.children,
     this.actionIcon,
+    this.compactSeparators = false,
   });
 
   @override
@@ -237,10 +311,11 @@ class _ProfileSection extends StatelessWidget {
 
   List<Widget> _injectSeparators(List<Widget> items) {
     final separated = <Widget>[];
+    final gap = compactSeparators ? 8.0 : 14.0;
     for (var i = 0; i < items.length; i++) {
       separated.add(items[i]);
       if (i != items.length - 1) {
-        separated.add(const SizedBox(height: 14));
+        if (gap > 0) separated.add(SizedBox(height: gap));
         separated.add(Container(
           height: 1,
           decoration: BoxDecoration(
@@ -253,7 +328,7 @@ class _ProfileSection extends StatelessWidget {
             ),
           ),
         ));
-        separated.add(const SizedBox(height: 14));
+        if (gap > 0) separated.add(SizedBox(height: gap));
       }
     }
     return separated;
@@ -337,7 +412,7 @@ class _DividerSpacer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
+      margin: EdgeInsets.zero,
       height: 1,
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -402,6 +477,60 @@ class _DestructiveButton extends StatelessWidget {
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
+    );
+  }
+}
+
+class _EditableField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
+
+  const _EditableField({
+    required this.label,
+    required this.controller,
+    this.keyboardType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFF5F7F9),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFF037A73), width: 1.6),
+            ),
+          ),
+          style: const TextStyle(
+            color: Color(0xFF0B2B40),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
