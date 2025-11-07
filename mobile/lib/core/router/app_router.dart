@@ -4,6 +4,7 @@ import 'package:rentara/core/providers/auth_provider.dart';
 import 'package:rentara/features/auth/presentation/screens/login_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/otp_verification_screen.dart';
+import 'package:rentara/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:rentara/features/auth/presentation/screens/register_screen.dart';
 import 'package:rentara/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:rentara/features/payments/presentation/screens/payments_screen.dart';
@@ -52,6 +53,12 @@ GoRouter router(RouterRef ref) {
       GoRoute(
         path: '/forgot-password/verify',
         builder: (context, state) => OtpVerificationScreen(
+          phoneNumber: state.extra as String?,
+        ),
+      ),
+      GoRoute(
+        path: '/forgot-password/reset',
+        builder: (context, state) => ResetPasswordScreen(
           phoneNumber: state.extra as String?,
         ),
       ),

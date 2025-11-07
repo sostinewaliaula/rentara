@@ -24,12 +24,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final rawPhone = _phoneController.text.trim().replaceAll(' ', '');
       final formattedPhone = '+254$rawPhone';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('OTP sent to $formattedPhone'),
-        ),
-      );
-
       context.go('/forgot-password/verify', extra: formattedPhone);
     }
   }

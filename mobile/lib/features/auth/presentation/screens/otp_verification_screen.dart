@@ -21,6 +21,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool _isResending = false;
   OverlayEntry? _toastOverlay;
 
+  bool get _isOtpComplete =>
+      _controllers.every((controller) => controller.text.trim().isNotEmpty);
+
   String get _maskedPhoneNumber {
     final phone = widget.phoneNumber;
     if (phone == null || phone.isEmpty) {
@@ -89,15 +92,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     _startCountdown();
   }
 
-  void _showOtpSentBanner({required bool isResent}) {
+  void _showOtpSentBanner({
+    required bool isResent,
+    String? titleOverride,
+    String? messageOverride,
+  }) {
     final overlay = Overlay.of(context, rootOverlay: true);
     if (overlay == null) return;
 
     final phoneText = widget.phoneNumber ?? 'your phone';
-    final title = isResent ? 'Verification code resent' : 'Verification code sent';
-    final message = isResent
-        ? 'We have resent the OTP to $phoneText.'
-        : 'We have sent the OTP to $phoneText.';
+    final title =
+        titleOverride ?? (isResent ? 'Verification code resent' : 'Verification code sent');
+    final message = messageOverride ??
+        (isResent ? 'We have resent the OTP to $phoneText.' : 'We have sent the OTP to $phoneText.');
 
     _removeToast();
 
@@ -106,6 +113,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         title: title,
         message: message,
         isResent: isResent,
+        titleOverride: titleOverride,
+        messageOverride: messageOverride,
         onDismissed: _removeToast,
       ),
     );
@@ -130,6 +139,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (index > 0) {
         _focusNodes[index - 1].requestFocus();
       }
+      setState(() {});
       return;
     }
 
@@ -146,6 +156,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     } else {
       _focusNodes[index].unfocus();
     }
+
+    setState(() {});
+  }
+
+  void _handleVerify() {
+    if (!_isOtpComplete) {
+      return;
+    }
+
+    _showOtpSentBanner(isResent: false, titleOverride: 'Code verified', messageOverride: 'OTP verified successfully.');
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) {
+        context.go('/forgot-password/reset', extra: widget.phoneNumber);
+      }
+    });
   }
 
   @override
@@ -320,9 +345,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             ),
                           const SizedBox(height: 32),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: _isOtpComplete ? _handleVerify : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF008F85),
+                              disabledBackgroundColor: const Color(0xFFE2E8F0),
                               padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -366,7 +392,12 @@ class _OtpToastBanner extends StatelessWidget {
     required this.message,
     required this.isResent,
     required this.onDismissed,
+    this.titleOverride,
+    this.messageOverride,
   });
+
+  final String? titleOverride;
+  final String? messageOverride;
 
   @override
   Widget build(BuildContext context) {
@@ -401,11 +432,11 @@ class _OtpToastBanner extends StatelessWidget {
                   color: const Color(0xFFE4F6F5),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  isResent ? Icons.refresh_outlined : Icons.mark_email_read_outlined,
-                  color: const Color(0xFF008F85),
-                  size: 20,
-                ),
+                  child: Icon(
+                    isResent ? Icons.refresh_outlined : Icons.mark_email_read_outlined,
+                    color: const Color(0xFF008F85),
+                    size: 20,
+                  ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -414,7 +445,7 @@ class _OtpToastBanner extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      title,
+                      titleOverride ?? title,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF0B2B40),
@@ -422,7 +453,7 @@ class _OtpToastBanner extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      message,
+                      messageOverride ?? message,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: const Color(0xFF64748B),
                       ),
