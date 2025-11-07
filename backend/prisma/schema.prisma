@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CARETAKER
+  TENANT
+}
+
+enum UnitStatus {
+  VACANT
+  OCCUPIED
+  MAINTENANCE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CANCELLED
+}
+
+enum NotificationMedium {
+  SMS
+  EMAIL
+  IN_APP
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  phone        String   @unique
+  email        String?  @unique
+  role         UserRole
+  passwordHash String   @map("password_hash")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  assignedUnits       Unit[]              @relation("TenantUnits")
+  payments            Payment[]
+  maintenanceRequests Maintenance[]       @relation("RequestedBy")
+  maintenanceAssigned Maintenance[]       @relation("AssignedTo")
+  notifications       Notification[]
+  ussdSessions        USSDSession[]
+  propertyCaretaker   PropertyCaretaker[]
+
+  @@map("users")
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  name        String
+  location    String
+  type        String // e.g., "Affordable Housing", "Private Estate"
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  units      Unit[]
+  caretakers PropertyCaretaker[]
+
+  @@map("properties")
+}
+
+model PropertyCaretaker {
+  id         String   @id @default(uuid())
+  propertyId String   @map("property_id")
+  userId     String   @map("user_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, userId])
+  @@map("property_caretakers")
+}
+
+model Unit {
+  id          String     @id @default(uuid())
+  propertyId  String     @map("property_id")
+  name        String // e.g., "Unit A1", "Block 2, Unit 5"
+  rentAmount  Float      @map("rent_amount")
+  status      UnitStatus @default(VACANT)
+  tenantId    String?    @map("tenant_id")
+  description String?
+  images      Json?      @default("[]") // Array of image URLs stored as JSON
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant      User?         @relation("TenantUnits", fields: [tenantId], references: [id])
+  payments    Payment[]
+  maintenance Maintenance[]
+
+  @@map("units")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  tenantId      String        @map("tenant_id")
+  unitId        String        @map("unit_id")
+  amount        Float
+  month         Int
+  year          Int
+  transactionId String?       @unique @map("transaction_id") // M-Pesa transaction ID
+  mpesaReceipt  String?       @map("mpesa_receipt")
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?     @map("paid_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  tenant User @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  unit   Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, unitId, month, year])
+  @@map("payments")
+}
+
+model Maintenance {
+  id           String            @id @default(uuid())
+  unitId       String            @map("unit_id")
+  description  String
+  status       MaintenanceStatus @default(PENDING)
+  createdById  String            @map("created_by_id")
+  assignedToId String?           @map("assigned_to_id")
+  images       Json?             @default("[]") // Array of image URLs stored as JSON
+  resolvedAt   DateTime?         @map("resolved_at")
+  notes        String?
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  unit       Unit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  createdBy  User  @relation("RequestedBy", fields: [createdById], references: [id])
+  assignedTo User? @relation("AssignedTo", fields: [assignedToId], references: [id])
+
+  @@map("maintenance")
+}
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String             @map("user_id")
+  title     String
+  message   String
+  medium    NotificationMedium
+  isRead    Boolean            @default(false) @map("is_read")
+  createdAt DateTime           @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model USSDSession {
+  id          String   @id @default(uuid())
+  phoneNumber String   @map("phone_number")
+  sessionId   String   @unique @map("session_id")
+  state       String // Current menu state
+  lastAction  String?  @map("last_action")
+  data        String? // JSON string for storing temporary data
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User? @relation(fields: [phoneNumber], references: [phone], onDelete: Cascade)
+
+  @@map("ussd_sessions")
+}
