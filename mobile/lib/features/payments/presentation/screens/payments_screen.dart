@@ -67,11 +67,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0B2B40)),
-          onPressed: () => context.go('/dashboard?bypass=1'),
-        ),
-        centerTitle: true,
+        automaticallyImplyLeading: false,
         title: Text(
           'Payments',
           style: theme.textTheme.titleLarge?.copyWith(

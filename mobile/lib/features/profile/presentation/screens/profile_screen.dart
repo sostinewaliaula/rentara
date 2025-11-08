@@ -36,7 +36,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0B2B40)),
-          onPressed: () => context.go('/dashboard?bypass=1'),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/dashboard?bypass=1');
+            }
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -161,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _PrimaryButton(
               label: 'Change Password',
               icon: Icons.vpn_key_rounded,
-              onTap: () {},
+              onTap: () => context.push('/settings/change-password?bypass=1'),
             ),
             const SizedBox(height: 12),
             _DestructiveButton(
@@ -181,7 +187,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const MainBottomNav(currentIndex: 3),
     );
   }
 
