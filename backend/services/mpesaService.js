@@ -1,12 +1,12 @@
-const axios = require('axios');
-const crypto = require('crypto');
-const {
+import axios from 'axios';
+import crypto from 'crypto';
+import {
   MPESA_CONSUMER_KEY,
   MPESA_CONSUMER_SECRET,
   MPESA_SHORTCODE,
   MPESA_PASSKEY,
   MPESA_ENVIRONMENT,
-} = require('../config/env');
+} from '../config/env.js';
 
 const BASE_URL = MPESA_ENVIRONMENT === 'production'
   ? 'https://api.safaricom.co.ke'
@@ -15,18 +15,14 @@ const BASE_URL = MPESA_ENVIRONMENT === 'production'
 let accessToken = null;
 let tokenExpiry = null;
 
-/**
- * Get M-Pesa access token
- */
-const getAccessToken = async () => {
-  // Return cached token if still valid
+export const getAccessToken = async () => {
   if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
     return accessToken;
   }
 
   try {
     const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString('base64');
-    
+
     const response = await axios.get(`${BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
       headers: {
         Authorization: `Basic ${auth}`,
@@ -34,7 +30,6 @@ const getAccessToken = async () => {
     });
 
     accessToken = response.data.access_token;
-    // Set expiry to 55 minutes (tokens expire in 1 hour)
     tokenExpiry = Date.now() + 55 * 60 * 1000;
 
     return accessToken;
@@ -44,24 +39,17 @@ const getAccessToken = async () => {
   }
 };
 
-/**
- * Generate password for STK push
- */
 const generatePassword = () => {
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
   const password = Buffer.from(`${MPESA_SHORTCODE}${MPESA_PASSKEY}${timestamp}`).toString('base64');
   return { password, timestamp };
 };
 
-/**
- * Initiate STK Push (Lipa na M-Pesa Online)
- */
-const initiateSTKPush = async (phoneNumber, amount, accountReference, transactionDesc) => {
+export const initiateSTKPush = async (phoneNumber, amount, accountReference, transactionDesc) => {
   try {
     const token = await getAccessToken();
     const { password, timestamp } = generatePassword();
 
-    // Format phone number (remove + and ensure 254 format)
     let formattedPhone = phoneNumber.replace(/^\+/, '');
     if (!formattedPhone.startsWith('254')) {
       formattedPhone = `254${formattedPhone.slice(-9)}`;
@@ -102,10 +90,7 @@ const initiateSTKPush = async (phoneNumber, amount, accountReference, transactio
   }
 };
 
-/**
- * Verify M-Pesa transaction
- */
-const verifyTransaction = async (checkoutRequestId) => {
+export const verifyTransaction = async (checkoutRequestId) => {
   try {
     const token = await getAccessToken();
     const { password, timestamp } = generatePassword();
@@ -133,7 +118,7 @@ const verifyTransaction = async (checkoutRequestId) => {
   }
 };
 
-module.exports = {
+export default {
   initiateSTKPush,
   verifyTransaction,
   getAccessToken,

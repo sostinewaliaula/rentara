@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = require('../config/env');
-const prisma = require('../config/database');
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config/env.js';
+import { executeQuery } from '../config/database.js';
 
-const authenticate = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -11,30 +11,27 @@ const authenticate = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        name: true,
-        phone: true,
-        email: true,
-        role: true,
-        isActive: true,
-      },
-    });
+    const result = await executeQuery(
+      `SELECT id, name, phone, email, role, is_active AS isActive
+       FROM users
+       WHERE id = ?
+       LIMIT 1`,
+      [decoded.userId]
+    );
 
-    if (!user || !user.isActive) {
+    if (!result.success || result.data.length === 0 || !result.data[0].isActive) {
       return res.status(401).json({ error: 'Invalid token or user inactive.' });
     }
 
-    req.user = user;
+    req.user = result.data[0];
     next();
   } catch (error) {
+    console.error('Auth error:', error.message);
     res.status(401).json({ error: 'Invalid token.' });
   }
 };
 
-const authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required.' });
@@ -47,8 +44,6 @@ const authorize = (...roles) => {
     next();
   };
 };
-
-module.exports = { authenticate, authorize };
 
 
 
