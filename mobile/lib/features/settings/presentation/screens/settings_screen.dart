@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rentara/core/widgets/main_bottom_nav.dart';
 
+enum AppearanceMode { light, dark, system }
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -12,6 +14,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _pushNotifications = true;
   bool _emailNotifications = false;
+  bool _smsNotifications = true;
+  AppearanceMode _appearanceMode = AppearanceMode.light;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +87,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const _TileDivider(),
                 _SettingsTile(
+                  icon: Icons.sms_outlined,
+                  title: 'SMS Notifications',
+                  trailing: Switch.adaptive(
+                    value: _smsNotifications,
+                    activeColor: const Color(0xFF008F85),
+                    onChanged: (value) {
+                      setState(() => _smsNotifications = value);
+                    },
+                  ),
+                ),
+                const _TileDivider(),
+                _SettingsTile(
                   icon: Icons.mail_outline_rounded,
                   title: 'Email Notifications',
                   trailing: Switch.adaptive(
@@ -110,8 +126,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _SettingsTile(
                   icon: Icons.brightness_6_outlined,
                   title: 'Appearance',
-                  trailingText: 'Light',
-                  onTap: () {},
+                  trailingText: _appearanceLabel,
+                  onTap: _showAppearanceSheet,
                 ),
                 const _TileDivider(),
                 _SettingsTile(
@@ -178,6 +194,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       bottomNavigationBar: const MainBottomNav(currentIndex: 3),
+    );
+  }
+
+  String get _appearanceLabel {
+    switch (_appearanceMode) {
+      case AppearanceMode.light:
+        return 'Light';
+      case AppearanceMode.dark:
+        return 'Dark';
+      case AppearanceMode.system:
+        return 'System';
+    }
+  }
+
+  void _showAppearanceSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 24,
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Select Appearance',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0B2B40),
+                          ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8)),
+                    onPressed: () => Navigator.of(sheetContext).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Match the app appearance to your preference.',
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ...AppearanceMode.values.map(
+                (mode) => _AppearanceOptionTile(
+                  mode: mode,
+                  isSelected: _appearanceMode == mode,
+                  onSelected: () {
+                    setState(() => _appearanceMode = mode);
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -368,6 +457,92 @@ class _SettingsTile extends StatelessWidget {
               )
             else
               const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AppearanceOptionTile extends StatelessWidget {
+  const _AppearanceOptionTile({
+    required this.mode,
+    required this.isSelected,
+    required this.onSelected,
+  });
+
+  final AppearanceMode mode;
+  final bool isSelected;
+  final VoidCallback onSelected;
+
+  String get _label {
+    switch (mode) {
+      case AppearanceMode.light:
+        return 'Light';
+      case AppearanceMode.dark:
+        return 'Dark';
+      case AppearanceMode.system:
+        return 'System';
+    }
+  }
+
+  IconData get _icon {
+    switch (mode) {
+      case AppearanceMode.light:
+        return Icons.wb_sunny_outlined;
+      case AppearanceMode.dark:
+        return Icons.nightlight_round;
+      case AppearanceMode.system:
+        return Icons.brightness_auto_rounded;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onSelected,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFE6FBF8) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF008F85) : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.6 : 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                _icon,
+                color: const Color(0xFF008F85),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                _label,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF0B2B40),
+                    ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF008F85))
+            else
+              const Icon(Icons.circle_outlined, color: Color(0xFFCBD5E1)),
           ],
         ),
       ),

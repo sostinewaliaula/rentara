@@ -272,22 +272,27 @@ class _PasswordField extends StatelessWidget {
           controller: controller,
           obscureText: obscureText,
           validator: validator,
+          style: const TextStyle(
+            color: Color(0xFF0B2B40),
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
             hintText: 'Enter $label'.toLowerCase(),
-            hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: const BorderSide(color: Color(0xFF008F85), width: 1.6),
+              borderSide: const BorderSide(color: Color(0xFF008F85), width: 1.8),
             ),
             suffixIcon: IconButton(
               icon: Icon(
